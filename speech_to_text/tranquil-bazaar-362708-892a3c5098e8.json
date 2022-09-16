@@ -1,0 +1,12 @@
+{
+  "type": "service_account",
+  "project_id": "tranquil-bazaar-362708",
+  "private_key_id": "892a3c5098e8cd59dd5f5950563a497f63f1b18f",
+  "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvAIBADANBgkqhkiG9w0BAQEFAASCBKYwggSiAgEAAoIBAQCgK9DzS+5ttP7i\n8o6bIpPKova8ZpjWTVZmb/nVgt/3ZGakE9Wh5Wtj6RMkzISh8LbZI/twgwpvxUBV\nz1bJTH1K9MwCQBFi8mBItJReb5TO0EW0nK1rEtKmobKYoBlIjYgr8L/2byfYt4Uq\nXI+D18e4UBGP1XNz2Atkl9WqG1Oot/J632Wai11+P19M3tCUQLI0RMrfXLKUJcaV\nwaY7Qdosed3bg7G3RlaUcgfdfyKlkXhg1dBDZMXpqCb11Vdr3Ev3mXLxG9bSzCxf\nE5zrciik26a8jfUmWyFBkUZx8Q/zocbiDdK2OtU42po4v3a5J/TXa6U3oCp+zpFD\naqmRf4F/AgMBAAECggEAAX17O4yaHkZEW1qJz3oLsiNjRelEoXqCibpZ4SUa1rCo\n5OVZ+zG0lrUZmX7dQE5Ej2mF1W71lOXmcz0zOfUgIUpOTK6yRlmqBO7Ib1JOQUyB\nHeFUA1i8fBJjx0ECbKnsbfLFXbVOIJlmrmbZgj1Ta+bttc702b/g557GAvCA35HG\nZyni7frLbtI4iFFaP9MkOpBT5QM6tZdzHWa4vSUkfxdz6hC559nJ/mhPzMgI/xu3\nXjalgt2if8DZVVZdz8Wtx26sK3xwwOKQigUHCsktiMg1Z9Y8ndO7UIezLcIRe5oa\nYz2uFtwfoYkWmhFDdZa0wIk2BgVGpN1tfismpffNmQKBgQDbIXxXz+2IDBnKVBZV\nU0DFAsjJDx5XorJZxCOy+25ZcDuJoYSttDJwLeuETL1CBHznncEiFJ5+Yl6tMJ+h\nUTMgbUV41iqjxNG6hhVs7/gn1A0J74xdVrT4af1M4xI4ALPI764iPpsAUWbJj6Mn\nJT6BGYkGUxSxR4p65dWUqZZ7fQKBgQC7HspWoth6pnglVIN2ck2AdXV6g4xMedas\nZQ5ztL/rgqrq5DC5VxA5hs1/Z3OIg1CFHJ6MVzXsaJsLdbcUg6/iqsXjSjTZVcsg\nuNh9Ffzw/gfm3i4FthUOvTJ16VeMK0nUxUSG50tFm50h+L/pTvxHcLkMdIunCTQ2\nI5mzX0QpqwKBgDihgcoL4X48alngu1jXyDBiFNPpRVUupdsPFo7F7fHNUIW0KV7e\n5/4Xz/sD/hFWqZUOLwCIxaEx+PfXThnZq1XhB4hACQsD7ZO/3T+nEMHySmBb+TGS\nG/jrI1xAfs/cVppCXwVYmqRNZTwIFAkk1e91UvVAeWOLcp1qUnU2Er7dAoGARM9Z\n0OopeVDmNbQSc+gsn+SRwu/FFApp6xNucRYyzURL3fzz/fQKP11XDFbaoYTIg2q2\n0xzu83S0L06meKDEeTIbey26qYFnJS1UTwta7LQ966QggHEo5Tal675XN3Bjwh6Y\nyJMdlwdWjTuQNxeYphzJr87b3B0CWjZVOyT5R+kCgYAYM7lPD0LZAvnZ+eerKvF/\n6eX0Kcq2e2JKNebOL0YOhIKtKgjncA9TQOy6OfdlcXGb1teBqkcCYwpRa9yqQByq\nrKC/rP0j8SChWJ4rVLcRc3upUBPJkKwpjzn7BypHCadEjYJjQrC0FLMZGO8LT08Z\nnPSO+bBk4Hx1N1i0/x8b0A==\n-----END PRIVATE KEY-----\n",
+  "client_email": "kong-ze-jie@tranquil-bazaar-362708.iam.gserviceaccount.com",
+  "client_id": "115921890152985635667",
+  "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+  "token_uri": "https://oauth2.googleapis.com/token",
+  "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+  "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/kong-ze-jie%40tranquil-bazaar-362708.iam.gserviceaccount.com"
+}
