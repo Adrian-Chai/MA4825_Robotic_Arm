@@ -6,7 +6,7 @@ Convert speech to text using Google Cloud API. Script takes in microphone input 
 Google Cloud Authentication:<br>
 
 Append to end of ~/.bashrc (Linux)<br>
-```export GOOGLE_APPLICATION_CREDENTIALS="/path/to/tranquil-bazaar-362708-892a3c5098e8.json"```<br>
+```export GOOGLE_APPLICATION_CREDENTIALS="/path/to/<authenticationkey>.json"```<br>
 ```source .bashrc```
 
 Dependencies:<br>
