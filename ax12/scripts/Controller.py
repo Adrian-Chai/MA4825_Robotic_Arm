@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# (-7,12) (0,12) (8,12)
+
 LINK_1 = 10 
 LINK_2 =  16.1 
 
@@ -115,14 +115,14 @@ class controller:
                             self.pub.publish(motorcmd)
                             sleep(2)
                             while not self.hand_in_range:
-                                pass
+                                sleep(0.1)
                             motorcmd = MotorCmd()
                             motorcmd.cmd = "gripper_open"
                             self.pub.publish(motorcmd)
                             # wait for hand obj
                             # while hand is not detected, do nothing
                             # while self.coordinate in range
-                            sleep(1)
+                            sleep(2)
                             motorcmd = MotorCmd() # reset 
                             motorcmd.cmd = "home"
                             self.pub.publish(motorcmd)
