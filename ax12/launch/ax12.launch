@@ -1,0 +1,7 @@
+<launch>
+
+  <node name="voice2text" pkg="voice2text" type="voice2text.py"/>
+  <node name="controller" pkg="ax12" type="Contoller.py"/>
+  <node name="movement" pkg="ax12" type="Movement.py"/>
+
+</launch>
