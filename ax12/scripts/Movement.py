@@ -2,10 +2,11 @@
 
 from Ax12 import Ax12
 import rospy
-from time import sleep
+from time import sleep,time
 from std_msgs.msg import String
 from ax12.msg import MotorCmd
 from dynamixel_sdk_examples.msg import SetPosition
+
 
 class robot:
     def __init__(self):
@@ -51,10 +52,10 @@ class robot:
         if cmd_msg.cmd == "on":
             print("Activate Robot")
             self.started = True
-            self.motor0.set_moving_speed(50)
-            self.motor1.set_moving_speed(50)
-            self.motor2.set_moving_speed(50)
-            self.motor3.set_moving_speed(50) 
+            self.motor0.set_moving_speed(80)
+            self.motor1.set_moving_speed(80)
+            self.motor2.set_moving_speed(80)
+            self.motor3.set_moving_speed(80) 
             self.gripper.set_moving_speed(50)
             self.gripper.set_max_torque(250)
             self.home()
@@ -64,7 +65,7 @@ class robot:
             print("Deactivate Robot")
             self.started = False
             self.home()
-            sleep(1)
+            sleep(3)
             self.gripperopen()
             sleep(3)
             self.gripperclose()
@@ -81,19 +82,30 @@ class robot:
         
         elif cmd_msg.cmd == "home":
             self.home()
+            self.gripperopen()
+
+        elif cmd_msg.cmd == "hand":
+            self.home()
+            self.move_motor(self.motor0,60)
+        
+        elif cmd_msg.cmd == "gripper_open":
+            self.gripperopen()
         
         elif cmd_msg.cmd == "kinematics":
             """
             Rotate motor1 and 3 then 0
             """
-            self.move_motor(self.motor1,cmd_msg.position1)
-            self.move_motor(self.motor3,cmd_msg.position3)
             self.move_motor(self.motor0,cmd_msg.position0) 
-            sleep(1)
+            sleep(2.5)
+            self.move_motor(self.motor3,cmd_msg.position3)
+            sleep(2.5)
+            self.move_motor(self.motor1,cmd_msg.position1)
+            sleep(2.5)
             if cmd_msg.gripper_cmd == "open":
                 self.gripperopen()
             elif cmd_msg.gripper_cmd == "close":
                 self.gripperclose()
+            sleep(3)
 
     def set_position_callback(self,position_msg):
         self.move_motor(self.motor_list[position_msg.id],position_msg.position)

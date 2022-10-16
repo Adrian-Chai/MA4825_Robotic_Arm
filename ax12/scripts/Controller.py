@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-
+# (-7,12) (0,12) (8,12)
 LINK_1 = 10 
 LINK_2 =  16.1 
 
@@ -10,17 +10,20 @@ from geometry_msgs.msg import Vector3
 from ax12.msg import MotorCmd
 import math
 import numpy as np
-
-class OutOfRange(Exception):
-    """Angle Out Of Range"""
-    pass
+from geometry_msgs.msg import PointStamped
 
 class controller:
     def __init__(self):
-        self.angle_range= {0:(0,299),1:(130,180),2:(150,150),3:(80,150),4:(150,240)}
+        self.angle_range= {0:(0,299),1:(110,180),2:(150,150),3:(80,150),4:(150,240)}
+        self.destination = {
+                            0:np.array([[-7,12,0.5]]),
+                            1:np.array([[ 0,12,0.5]]),
+                            2:np.array([[ 8,12,0.5]])
+                            } # 0,1,2 is id of object
+        self.coordinate = None
+        self.hand_in_range = False
         self.pub = None
         self.started = False
-        self.coordinate = None
     
     def check_angle(self,position0,position1,position3):
         """
@@ -39,7 +42,14 @@ class controller:
             return False
 
         return True
-         
+    
+    def hand_coord_callback(self,coordinate):
+        if coordinate.point.x !=0 and coordinate.point.y !=0:
+            hand_coord = (coordinate.point.x,coordinate.point.y)
+            print(hand_coord)
+            self.hand_in_range = True
+        else:
+            self.hand_in_range = False
 
     def coordinate_callback(self,coordinate):
         self.coordinate = np.transpose(np.array([[coordinate.x,coordinate.y,coordinate.z]]))
@@ -50,6 +60,7 @@ class controller:
             1.) on
             2.) off (disconnect only)
             3.) home
+            4.) hand
             4.) cube
             5.) exit (kill all nodes)
         """
@@ -83,8 +94,7 @@ class controller:
 
         if voice_cmd.data.lower().find("cube") != -1:
             if self.started == True:
-                # service to depth camera node
-                if self.coordinate is not None:
+                if self.coordinate is not None: # check for obj
                     position0,position1,position3 = self.inverse_kinematics(self.coordinate)
                     print("position0: ",position0)
                     print("position1: ",position1)
@@ -97,17 +107,37 @@ class controller:
                             motorcmd.position0 = position0
                             motorcmd.position1 = position1
                             motorcmd.position3 = position3
-
+                            motorcmd.gripper_cmd = "close"
                             self.pub.publish(motorcmd)
+                            sleep(2)
+                            motorcmd = MotorCmd()
+                            motorcmd.cmd = "hand"
+                            self.pub.publish(motorcmd)
+                            sleep(2)
+                            while not self.hand_in_range:
+                                pass
+                            motorcmd = MotorCmd()
+                            motorcmd.cmd = "gripper_open"
+                            self.pub.publish(motorcmd)
+                            # wait for hand obj
+                            # while hand is not detected, do nothing
+                            # while self.coordinate in range
+                            sleep(1)
+                            motorcmd = MotorCmd() # reset 
+                            motorcmd.cmd = "home"
+                            self.pub.publish(motorcmd)
+                            
+                            
                         elif confirm == "n":
                             print("fail")
                         self.coordinate = None
+
                 
     def inverse_kinematics(self,coordinate):
         # coordinate is numpy 3 x 1 array
-        x = coordinate[0][0]
-        y = coordinate[1][0]
-        z = coordinate[2][0]
+        x = coordinate[0]
+        y = coordinate[1]
+        z = coordinate[2]
 
         yaw = math.atan(y/(x-1.5))
         if yaw < 0:
@@ -120,7 +150,7 @@ class controller:
 
         motor1_joint = H01 @ np.transpose(np.array([[1.5,0,2,1]]))
 
-        relative_distance = math.sqrt((x-motor1_joint[0][0])**2+(y-motor1_joint[1][0])**2) 
+        relative_distance = math.sqrt((x-motor1_joint[0][0])**2+(y-motor1_joint[1][0])**2) - 3 #obj radius
 
         relative_height = z - motor1_joint[2] 
 
@@ -139,6 +169,7 @@ class controller:
         rospy.init_node("ax12",anonymous=True,disable_signals=True)
         self.pub = rospy.Publisher("/motor_cmd",MotorCmd,queue_size=1)
         rospy.Subscriber("/coordinate",Vector3,self.coordinate_callback)
+        rospy.Subscriber("/hand_coord",PointStamped,self.hand_coord_callback)
         rospy.Subscriber("/voice_cmd",String,self.voice_cmd_callback)
         rospy.spin()
         
