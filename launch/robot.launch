@@ -1,0 +1,6 @@
+<launch>
+    <include file="$(find ma4825_robotic_arm)/launch/camera.launch"/>
+    <node name="voice2text" pkg="ma4825_robotic_arm" type="voice2text.py"/>
+    <node name="controller" pkg="ma4825_robotic_arm" type="Controller.py"/>
+    <node name="movement"   pkg="ma4825_robotic_arm" type="Movement.py"  />
+</launch>

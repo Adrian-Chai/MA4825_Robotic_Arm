@@ -7,6 +7,7 @@ import sys
 import rospy
 from std_msgs.msg import String
 from google.cloud import speech
+from google.api_core import exceptions
 
 import pyaudio
 from six.moves import queue
@@ -148,35 +149,39 @@ class voice2text:
 
 
     def main(self):
-        # See http://g.co/cloud/speech/docs/languages
-        # for a list of supported languages.
-        language_code = "en-US"  # a BCP-47 language tag
+        try:
+            # See http://g.co/cloud/speech/docs/languages
+            # for a list of supported languages.
+            language_code = "en-US"  # a BCP-47 language tag
 
-        client = speech.SpeechClient()
-        config = speech.RecognitionConfig(
-            encoding=speech.RecognitionConfig.AudioEncoding.LINEAR16,
-            sample_rate_hertz=RATE,
-            language_code=language_code,
-        )
-
-        streaming_config = speech.StreamingRecognitionConfig(
-            config=config, interim_results=True
-        )
-
-        with MicrophoneStream(RATE, CHUNK) as stream:
-            audio_generator = stream.generator()
-            requests = (
-                speech.StreamingRecognizeRequest(audio_content=content)
-                for content in audio_generator
+            client = speech.SpeechClient()
+            config = speech.RecognitionConfig(
+                encoding=speech.RecognitionConfig.AudioEncoding.LINEAR16,
+                sample_rate_hertz=RATE,
+                language_code=language_code,
             )
 
-            responses = client.streaming_recognize(streaming_config, requests)
+            streaming_config = speech.StreamingRecognitionConfig(
+                config=config, interim_results=True
+            )
 
-            # Now, put the transcription responses to use.
-            try:
-                self.listen_print_loop(responses)
-            except rospy.ROSInterruptException:
-                pass
+            with MicrophoneStream(RATE, CHUNK) as stream:
+                audio_generator = stream.generator()
+                requests = (
+                    speech.StreamingRecognizeRequest(audio_content=content)
+                    for content in audio_generator
+                )
+
+                responses = client.streaming_recognize(streaming_config, requests)
+
+                # Now, put the transcription responses to use.
+                try:
+                    self.listen_print_loop(responses)
+                except rospy.ROSInterruptException:
+                    pass
+        
+        except exceptions.OutOfRange:
+            self.main()
 
 
 if __name__ == "__main__":
