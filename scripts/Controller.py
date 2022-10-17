@@ -1,7 +1,9 @@
-# hand range , obj callback
-
 #!/usr/bin/env python3
+# 6 cm from box
+# 21 cm camera from edge of box
+# camera 56.5 from platform
 
+# david open
 LINK_1 = 10 
 LINK_2 =  16.1 
 
@@ -18,14 +20,15 @@ class controller:
     def __init__(self):
         self.angle_range= {0:(0,299),1:(110,180),2:(150,150),3:(80,150),4:(150,240)}
         self.destination = {
-                            1:np.array([[-7,12,0.5]]),
-                            2:np.array([[ 0,12,0.5]]),
-                            3:np.array([[ 8,12,0.5]])
+                            0:np.array([-7,12,0.5]),
+                            1:np.array([ 0,12,0.5]),
+                            2:np.array([ 8,12,0.5])
                             } # 0,1,2 is id of object
-        self.obj_present = None
         self.hand_in_range = False
         self.pub = None
         self.started = False
+        self.standby = False
+        self.coordinate = None
     
     def check_angle(self,position0,position1,position3):
         """
@@ -45,20 +48,16 @@ class controller:
 
         return True
     
-    # def obj_callback(self,obj):
-    #     self.obj_present = {1:True, 2:True, 3:True}
-    
     def hand_coord_callback(self,coordinate):
-        #if coordinate.point.x < ... and coordinate.point.x > ... and coordinate.point.y < ... and coordinate.point.y > ...:
-        if coordinate.point.x !=0 and coordinate.point.y !=0: # can put in range 
+        if coordinate.point.x > 300 and coordinate.point.x < 500 and coordinate.point.y > 350 and coordinate.point.y < 550:
             hand_coord = (coordinate.point.x,coordinate.point.y)
             print(hand_coord)
-            self.hand_in_range = True # hand always in range now !!!
+            self.hand_in_range = True
         else:
             self.hand_in_range = False
 
     def coordinate_callback(self,coordinate):
-        self.coordinate = np.transpose(np.array([[coordinate.x,coordinate.y,coordinate.z]]))
+        self.coordinate = np.array([coordinate.x,coordinate.y,coordinate.z])
         
     def voice_cmd_callback(self,voice_cmd):
         """
@@ -81,6 +80,7 @@ class controller:
         elif (voice_cmd.data).lower().find("off") != -1:
             if self.started == True:
                 self.started = False
+                self.standby = False
                 motorcmd = MotorCmd()
                 motorcmd.cmd = "off"
                 self.pub.publish(motorcmd)
@@ -93,55 +93,52 @@ class controller:
             rospy.signal_shutdown("exit")
         
         elif voice_cmd.data.lower().find("home") != -1:
-            if self.started == True:
+            if self.started == True and self.standby == True:
                 motorcmd = MotorCmd()
                 motorcmd.cmd = "home"
                 self.pub.publish(motorcmd)
-        else:
-            object = None
-            if voice_cmd.data.lower().find("one") != -1:
-                object = 1
-            elif voice_cmd.data.lower().find("two") != -1:
-                object = 2
-            elif voice_cmd.data.lower().find("three") != -1:
-                object = 3
-            if self.started == True and object != None:
-                if self.obj_present[object] == True: # check for obj
-                    position0,position1,position3 = self.inverse_kinematics(self.destination[object])
-                    print("position0: ",position0)
-                    print("position1: ",position1)
-                    print("position3: ",position3)
-                    if self.check_angle(position0,position1,position3) == True:
-                        confirm = input("y/n")
-                        if confirm == "y":
-                            motorcmd = MotorCmd()
-                            motorcmd.cmd = "kinematics"
-                            motorcmd.position0 = position0
-                            motorcmd.position1 = position1
-                            motorcmd.position3 = position3
-                            motorcmd.gripper_cmd = "close"
-                            self.pub.publish(motorcmd)
-                            sleep(2)
-                            motorcmd = MotorCmd()
-                            motorcmd.cmd = "hand"
-                            self.pub.publish(motorcmd)
-                            sleep(2)
-                            while not self.hand_in_range: # wait for hand obj
-                                sleep(0.1)                # while hand is not detected, do nothing
-                            motorcmd = MotorCmd()
-                            motorcmd.cmd = "gripper_open"
-                            self.pub.publish(motorcmd)
-                            sleep(2)
-                            motorcmd = MotorCmd() # reset 
-                            motorcmd.cmd = "home"
-                            self.pub.publish(motorcmd)
-                        elif confirm == "n":
-                            print("fail")
-                        self.coordinate = None
-                        self.hand_in_range = False
-                else:
-                    print(str(object) + "" + "not found")
+        
+        elif voice_cmd.data.lower().find("david") != -1:
+            if self.started == True and self.standby == False:
+                motorcmd = MotorCmd()
+                motorcmd.cmd = "gripper_open"
+                self.pub.publish(motorcmd)
+                self.standby = True
 
+        else:
+            if self.started == True and self.standby == True:
+                object = None
+                if voice_cmd.data.lower().find("one") != -1: #-7
+                    object = 0
+                elif voice_cmd.data.lower().find("two") != -1: #0
+                    object = 1
+                elif voice_cmd.data.lower().find("screwdriver") != -1: #8
+                    object = 2
+                if object != None or self.coordinate is not None:
+                    if object != None:
+                        position0,position1,position3 = self.inverse_kinematics(self.destination[object])
+                    else:
+                        position0,position1,position3 = self.inverse_kinematics(self.coordinate)
+                    if self.check_angle(position0,position1,position3) == True:
+                        motorcmd = MotorCmd()
+                        motorcmd.cmd = "kinematic"
+                        motorcmd.position0 = position0
+                        motorcmd.position1 = position1
+                        motorcmd.position3 = position3
+                        motorcmd.gripper_cmd = "close"
+                        self.pub.publish(motorcmd)
+                        sleep(2)
+                        motorcmd = MotorCmd()
+                        motorcmd.cmd = "home"
+                        self.pub.publish(motorcmd)
+                        sleep(2)
+                        while not self.hand_in_range: # wait for hand obj
+                            sleep(0.1)                # while hand is not detected, do nothing
+                        motorcmd = MotorCmd()
+                        motorcmd.cmd = "hand"
+                        self.pub.publish(motorcmd)
+                        self.hand_in_range = False
+                        self.standby = False
                 
     def inverse_kinematics(self,coordinate):
         # coordinate is numpy 3 x 1 array
@@ -179,7 +176,6 @@ class controller:
         rospy.init_node("ax12",anonymous=True,disable_signals=True)
         self.pub = rospy.Publisher("/motor_cmd",MotorCmd,queue_size=1)
         rospy.Subscriber("/coordinate",Vector3,self.coordinate_callback)
-        # rospy.Subscriber("/obj"....)
         rospy.Subscriber("/hand_coord",PointStamped,self.hand_coord_callback)
         rospy.Subscriber("/voice_cmd",String,self.voice_cmd_callback)
         rospy.spin()

@@ -3,7 +3,6 @@
 from Ax12 import Ax12
 import rospy
 from time import sleep,time
-from std_msgs.msg import String
 from ax12.msg import MotorCmd
 from dynamixel_sdk_examples.msg import SetPosition
 
@@ -56,11 +55,11 @@ class robot:
         motor.set_goal_position(input_pos)
 
     def cmd_callback(self,cmd_msg):
+        print(cmd_msg)
         self.wait_motor_stop(self.motor0)
         self.wait_motor_stop(self.motor1)
         self.wait_motor_stop(self.motor3)
         self.wait_motor_stop(self.gripper)
-        print(cmd_msg)
         if cmd_msg.cmd == "on":
             print("Activate Robot")
             self.started = True
@@ -71,7 +70,7 @@ class robot:
             self.gripper.set_moving_speed(50)
             self.gripper.set_max_torque(250)
             self.home()
-            self.gripperopen()
+            self.gripperclose()
         
         if cmd_msg.cmd == "off":
             print("Deactivate Robot")
@@ -93,14 +92,16 @@ class robot:
         
         elif cmd_msg.cmd == "home":
             self.home()
-            self.gripperopen()
 
         elif cmd_msg.cmd == "hand": 
             self.move_motor(self.motor0,60) 
-            self.move_motor(self.motor1,(150))
-            self.move_motor(self.motor2,(60))
-            self.move_motor(self.motor3,(150))
-            self.move_motor(self.motor0,60)
+            self.wait_motor_stop(self.motor0)
+            self.gripperopen()
+            self.wait_motor_stop(self.gripper)
+            self.move_motor(self.motor3,140)
+            self.wait_motor_stop(self.motor3)
+            self.home()
+            self.gripperclose() # reset cycle
         
         elif cmd_msg.cmd == "gripper_open":
             self.gripperopen()
@@ -115,6 +116,8 @@ class robot:
             self.wait_motor_stop(self.motor3)
             self.move_motor(self.motor1,cmd_msg.position1)
             self.wait_motor_stop(self.motor1)
+            self.gripperopen()
+            self.wait_motor_stop(self.gripper)
             if cmd_msg.gripper_cmd == "open":
                 self.gripperopen()
             elif cmd_msg.gripper_cmd == "close":
