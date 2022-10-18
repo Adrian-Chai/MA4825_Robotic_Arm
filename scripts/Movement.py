@@ -63,14 +63,21 @@ class robot:
         if cmd_msg.cmd == "on":
             print("Activate Robot")
             self.started = True
-            self.motor0.set_moving_speed(80)
-            self.motor1.set_moving_speed(80)
-            self.motor2.set_moving_speed(80)
-            self.motor3.set_moving_speed(80) 
+            self.motor0.set_moving_speed(50)
+            self.motor1.set_moving_speed(50)
+            self.motor2.set_moving_speed(50)
+            self.motor3.set_moving_speed(50) 
             self.gripper.set_moving_speed(50)
             self.gripper.set_max_torque(250)
+            sleep(0.5)
             self.home()
             self.gripperclose()
+            sleep(0.5)
+            self.motor0.set_moving_speed(70)
+            self.motor1.set_moving_speed(70)
+            self.motor2.set_moving_speed(70)
+            self.motor3.set_moving_speed(70) 
+            self.gripper.set_moving_speed(80)
         
         if cmd_msg.cmd == "off":
             print("Deactivate Robot")
@@ -106,7 +113,7 @@ class robot:
         elif cmd_msg.cmd == "gripper_open":
             self.gripperopen()
         
-        elif cmd_msg.cmd == "kinematics":
+        elif cmd_msg.cmd == "kinematic":
             """
             Rotate motor1 and 3 then 0
             """
@@ -116,11 +123,11 @@ class robot:
             self.wait_motor_stop(self.motor3)
             self.move_motor(self.motor1,cmd_msg.position1)
             self.wait_motor_stop(self.motor1)
-            self.gripperopen()
-            self.wait_motor_stop(self.gripper)
             if cmd_msg.gripper_cmd == "open":
                 self.gripperopen()
+                self.gripperopen()
             elif cmd_msg.gripper_cmd == "close":
+                self.gripperclose()
                 self.gripperclose()
             self.wait_motor_stop(self.gripper)
         
