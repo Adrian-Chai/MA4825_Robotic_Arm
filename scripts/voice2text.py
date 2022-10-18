@@ -88,7 +88,8 @@ class MicrophoneStream(object):
 class voice2text:
     def __init__(self):
         rospy.init_node("voice2text",anonymous=True)
-        self.word_pub = rospy.Publisher("/voice_cmd",String,queue_size=0)
+        self.word_pub = rospy.Publisher("/voice_cmd",String,queue_size=1)
+        self.reset_pub = rospy.Publisher("/reset",String,queue_size=1)
         
 
     def listen_print_loop(self,responses):
@@ -138,7 +139,10 @@ class voice2text:
                 print(transcript + overwrite_chars)
                 txt_msg = String()
                 txt_msg.data = transcript + overwrite_chars
-                self.word_pub.publish(txt_msg)
+                if txt_msg.data.lower().find("reset") != -1:
+                    self.reset_pub.publish(txt_msg)
+                else:
+                    self.word_pub.publish(txt_msg)
                 # Exit recognition if any of the transcribed phrases could be
                 # one of our keywords.
                 if re.search(r"\b(exit|quit)\b", transcript, re.I):
