@@ -3,7 +3,8 @@
 # 21 cm camera from edge of box
 # camera 56.5 from platform
 
-# david open
+# obj name
+
 LINK_1 = 10 
 LINK_2 =  16.1 
 
@@ -29,6 +30,7 @@ class controller:
         self.started = False
         self.standby = False
         self.coordinate = None
+        self.reset = False
     
     def check_angle(self,position0,position1,position3):
         """
@@ -58,6 +60,10 @@ class controller:
 
     def coordinate_callback(self,coordinate):
         self.coordinate = np.array([coordinate.x,coordinate.y,coordinate.z])
+    
+    def reset_callback(self,reset):
+        if self.started == True and self.standby == True:
+            self.reset = True
         
     def voice_cmd_callback(self,voice_cmd):
         """
@@ -91,12 +97,7 @@ class controller:
                 motorcmd.cmd = "exit"
                 self.pub.publish(motorcmd)
             rospy.signal_shutdown("exit")
-        
-        elif voice_cmd.data.lower().find("home") != -1:
-            if self.started == True and self.standby == True:
-                motorcmd = MotorCmd()
-                motorcmd.cmd = "home"
-                self.pub.publish(motorcmd)
+            
         
         elif voice_cmd.data.lower().find("david") != -1:
             if self.started == True and self.standby == False:
@@ -108,9 +109,9 @@ class controller:
         else:
             if self.started == True and self.standby == True:
                 object = None
-                if voice_cmd.data.lower().find("one") != -1: #-7
+                if voice_cmd.data.lower().find("0") != -1: #-7
                     object = 0
-                elif voice_cmd.data.lower().find("two") != -1: #0
+                elif voice_cmd.data.lower().find("1") != -1: #0
                     object = 1
                 elif voice_cmd.data.lower().find("screwdriver") != -1: #8
                     object = 2
@@ -127,18 +128,22 @@ class controller:
                         motorcmd.position3 = position3
                         motorcmd.gripper_cmd = "close"
                         self.pub.publish(motorcmd)
-                        sleep(2)
+                        sleep(0.1)
                         motorcmd = MotorCmd()
                         motorcmd.cmd = "home"
                         self.pub.publish(motorcmd)
-                        sleep(2)
-                        while not self.hand_in_range: # wait for hand obj
-                            sleep(0.1)                # while hand is not detected, do nothing
-                        motorcmd = MotorCmd()
-                        motorcmd.cmd = "hand"
-                        self.pub.publish(motorcmd)
+                        sleep(0.1)
+                        while not (self.hand_in_range or self.reset): # wait for hand obj
+                            sleep(0.01)                # while hand is not detected, do nothing
+                        if self.reset == False:
+                            motorcmd = MotorCmd()
+                            motorcmd.cmd = "hand"
+                            self.pub.publish(motorcmd)
+                        else:
+                            print("reset")
                         self.hand_in_range = False
                         self.standby = False
+                        self.reset = False
                 
     def inverse_kinematics(self,coordinate):
         # coordinate is numpy 3 x 1 array
@@ -178,6 +183,7 @@ class controller:
         rospy.Subscriber("/coordinate",Vector3,self.coordinate_callback)
         rospy.Subscriber("/hand_coord",PointStamped,self.hand_coord_callback)
         rospy.Subscriber("/voice_cmd",String,self.voice_cmd_callback)
+        rospy.Subscriber("/reset",String,self.reset_callback)
         rospy.spin()
         
         
