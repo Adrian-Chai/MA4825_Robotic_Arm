@@ -70,10 +70,10 @@ class controller:
             List of commands:
             1.) on
             2.) off (disconnect only)
-            3.) home
-            4.) hand
-            4.) cube
-            5.) exit (kill all nodes)
+            3.) handle
+            4.) box
+            5.) screwdriver
+            6.) exit (kill all nodes)
         """
 
         if (voice_cmd.data).lower().find("on") != -1:
@@ -109,9 +109,9 @@ class controller:
         else:
             if self.started == True and self.standby == True:
                 object = None
-                if voice_cmd.data.lower().find("0") != -1: #-7
+                if voice_cmd.data.lower().find("handle") != -1: #-7
                     object = 0
-                elif voice_cmd.data.lower().find("1") != -1: #0
+                elif voice_cmd.data.lower().find("box") != -1: #0
                     object = 1
                 elif voice_cmd.data.lower().find("screwdriver") != -1: #8
                     object = 2
