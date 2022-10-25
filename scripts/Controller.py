@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# 6 cm from box
+# 4.5 cm from box
 # 21 cm camera from edge of box
 # camera 56.5 from platform
 
@@ -51,7 +51,7 @@ class controller:
         return True
     
     def hand_coord_callback(self,coordinate):
-        if coordinate.point.x > 300 and coordinate.point.x < 500 and coordinate.point.y > 350 and coordinate.point.y < 550:
+        if coordinate.point.x > 450 and coordinate.point.x < 850 and coordinate.point.y > 300 and coordinate.point.y < 700:
             hand_coord = (coordinate.point.x,coordinate.point.y)
             print(hand_coord)
             self.hand_in_range = True
@@ -70,10 +70,10 @@ class controller:
             List of commands:
             1.) on
             2.) off (disconnect only)
-            3.) handle
+            3.) sticky tape
             4.) box
             5.) screwdriver
-            6.) exit (kill all nodes)
+            6.) exit/bye (kill all nodes)
         """
 
         if (voice_cmd.data).lower().find("on") != -1:
@@ -91,7 +91,7 @@ class controller:
                 motorcmd.cmd = "off"
                 self.pub.publish(motorcmd)
         
-        elif voice_cmd.data.lower().find("exit") != -1:
+        elif voice_cmd.data.lower().find("exit") != -1 or voice_cmd.data.lower().find("bye") != -1:
             if self.started == True:
                 motorcmd = MotorCmd()
                 motorcmd.cmd = "exit"
@@ -109,11 +109,11 @@ class controller:
         else:
             if self.started == True and self.standby == True:
                 object = None
-                if voice_cmd.data.lower().find("handle") != -1: #-7
+                if voice_cmd.data.lower().find("screwdriver") != -1: #-7
                     object = 0
                 elif voice_cmd.data.lower().find("box") != -1: #0
                     object = 1
-                elif voice_cmd.data.lower().find("screwdriver") != -1: #8
+                elif voice_cmd.data.lower().find("sticky") != -1 or voice_cmd.data.lower().find("tape") != -1: #8
                     object = 2
                 if object != None or self.coordinate is not None:
                     if object != None:

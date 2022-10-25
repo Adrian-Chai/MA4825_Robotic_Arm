@@ -3,7 +3,7 @@
   <!-- Config and weights folder. -->
   <arg name="yolo_path"          default="$(find ma4825_robotic_arm)/models"/>
 
-  <node pkg="ma4825_robotic_arm" type="camera.py" name="camera_node" output="screen"/>
+  <node pkg="ma4825_robotic_arm" type="camera.py" name="camera_node" output="screen" launch-prefix="gnome-terminal --command"/>
     <param name="yolo_path"          value="$(arg yolo_path)" />
 
 </launch>

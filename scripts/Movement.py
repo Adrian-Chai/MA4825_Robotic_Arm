@@ -105,7 +105,7 @@ class robot:
             self.wait_motor_stop(self.motor0)
             self.gripperopen()
             self.wait_motor_stop(self.gripper)
-            self.move_motor(self.motor3,140)
+            self.move_motor(self.motor3,120)
             self.wait_motor_stop(self.motor3)
             self.home()
             self.gripperclose() # reset cycle

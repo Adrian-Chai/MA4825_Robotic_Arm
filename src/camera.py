@@ -51,7 +51,7 @@ class Camera:
 
         print("starting webcam...")
         cv2.namedWindow("preview")
-        vc = cv2.VideoCapture(6) #realsense d435i rgb frame detected on /video4 for adrian's computer
+        vc = cv2.VideoCapture(4) #realsense d435i rgb frame detected on /video4 for adrian's computer
 
         if vc.isOpened():  # try to get the first frame
             rval, frame = vc.read()
